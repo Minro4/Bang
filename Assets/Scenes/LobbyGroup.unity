@@ -379,6 +379,10 @@ Prefab:
       propertyPath: m_Text
       value: 127.0.0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 1392149864106834, guid: 7cff00ae2d1a85947991671c9e671423, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7cff00ae2d1a85947991671c9e671423, type: 2}
   m_IsPrefabParent: 0

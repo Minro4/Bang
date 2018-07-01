@@ -6,10 +6,14 @@ using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour {
 
-    List<GameObject> buttonsInScene;
-    List<GameObject> buttonList = new List<GameObject>();
-    int nextButtonToPress = 0;
-    public SpriteRenderer sprite;
+
+    // [HideInInspector] public SpriteRenderer sprite;
+
+    [HideInInspector]public List<GameObject> playerForMG = new List<GameObject>();
+    public bool finishedShooting = false;
+    public int index;
+    public string name = "a";
+    public Color color;
 
     [SyncVar]
     public bool isUD = false;
@@ -18,14 +22,19 @@ public class Player : NetworkBehaviour {
     [SyncVar]
     public bool wantsToRestart = false;
     [SyncVar]
-    public float compassValue = -1;
+    public float compassValueCenter = -1;
 
     Vector3 initialPos;
+    [HideInInspector]public int currentMGIndex = 0;
 
-    Coroutine shoot;
-    Coroutine race;
+    //Mini Game Related Vars
+    [SyncVar]
+    public int tapRaceNbr;
 
-    const float timeWaitForServer = 0.1f;
+
+
+
+
 
 
     public void InitializePlayer()
@@ -33,118 +42,43 @@ public class Player : NetworkBehaviour {
         initialPos = transform.position;
         if (isLocalPlayer)
         {
-            sprite.color = DuelManager.instance.playerColor;
+          //  sprite.color = DuelManager.instance.playerColor;
             DuelManager.instance.player = this;
         }
-        else
-        {
-            sprite.color = DuelManager.instance.otherPlayerColor;
-        }
+        //else
+        //{
+        //    sprite.color = DuelManager.instance.otherPlayerColor;
+        //}
     }
     public void ResetPlayer()
     {
         //CmdWin(false);
         //CmdUpdateUD(false);
         wantsToRestart = false;
-        hasWon = false;
+        //hasWon = false;
         isUD = false;
-        sprite.enabled = false;
-        nextButtonToPress = 0;
-        buttonList.Clear();
+        playerForMG.Clear();
+        finishedShooting = false;
         transform.position = initialPos;
-        shoot = null;
-        race = null;
+        currentMGIndex = 0;
     }
     public bool DeviceIsUD()
     {
         return Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown || Input.GetKey(KeyCode.Space);
     }
-    public IEnumerator StartMG()
+  
+  
+    //public void GroupShoot(float averagedCompass)
+    //{
+    //    CmdWin(true);
+    //    DisplayEndResult(true);
+    //}
+    public void ShootSomeone()
     {
-       if (isServer)
-        {
-            yield return new WaitForSeconds(timeWaitForServer);
-        }
-        Handheld.Vibrate();
-        SetButtons();
-    }
-
-    public void SetButtons()
-    {
-        buttonsInScene = TransformExtensions.FindObjectsWithTag(DuelManager.instance.canvasDuel.transform, "Button");
-        int iMax = buttonsInScene.Count;
-        for (int i = 0; i < iMax; i++)
-        {
-            int rng = Random.Range(0, buttonsInScene.Count - 1);
-            buttonList.Add(buttonsInScene[rng]);
-            buttonsInScene[rng].GetComponentInChildren<Text>().text = (i + 1).ToString();
-            buttonsInScene[rng].SetActive(true);
-            buttonsInScene.RemoveAt(rng);
-        }
-
-    }
-    public void ButtonPressed(GameObject button)
-    {
-        if (button == buttonList[nextButtonToPress])
-        {
-            button.SetActive(false);
-            nextButtonToPress += 1;
-            if (nextButtonToPress == buttonList.Count)
-            {
-                race = StartCoroutine(Race());
-
-            }
-        }
-        else
-        {
-            Debug.Log("Wrong Button");
-        }
-    }
-    IEnumerator Race()
-    {
-        DisplayRace(true);
-        while (transform.position.y < DuelManager.instance.raceEndPos)
-        {
-            foreach (Touch touch in Input.touches)
-            {
-              if(  touch.phase == TouchPhase.Began)
-                {
-                    transform.position += Vector3.up / 3.5f;
-                }
-            }
-            if (Input.GetMouseButtonDown(0))
-            {
-                transform.position += Vector3.up / 3.5f;
-            }
-            yield return null;
-        }
-        DisplayRace(false);
-        shoot = StartCoroutine(Shoot());
-    }
-    public void DisplayRace(bool t)
-    {
-        foreach (Player p in DuelManager.instance.players)
-        {
-            p.sprite.enabled = t;
-            p.GetComponent<NetworkTransform>().enabled = t;
-        }
-        DuelManager.instance.map.SetActive(t);
-    }
-    IEnumerator Shoot()
-    {
-        DuelManager.instance.endText.text = "Shoot!";
-        while (!(Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || Input.GetKey(KeyCode.Z)))
-        {
-            yield return null;
-        }
-        while (!(Input.deviceOrientation == DeviceOrientation.Portrait || Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown || Input.GetKey(KeyCode.X)))
-        {
-            yield return null;
-        }
-        Handheld.Vibrate();
         CmdWin(true);
         DisplayEndResult(true);
     }
+
     public void CheckIsUD()   {
         if (isLocalPlayer)
         {
@@ -155,7 +89,6 @@ public class Player : NetworkBehaviour {
             }
             else
             {
-                DuelManager.instance.map.SetActive(false);
                 CmdUpdateUD(false);
                 DuelManager.instance.endText.text = "Eille";
                 //show le caca
@@ -164,7 +97,7 @@ public class Player : NetworkBehaviour {
     }
     public void DisplayEndResult(bool won)
     {
-        ClearMiniGame();
+        DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
         DuelManager.instance.restartButton.SetActive(true);
         if (won)
         {
@@ -176,20 +109,23 @@ public class Player : NetworkBehaviour {
             DuelManager.instance.endText.text = "Game Over";
         }
     }
-    void ClearMiniGame()
+    public void DisplayYouDiedGroup(string killer)
     {
-        if (race != null)
+        DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
+        DuelManager.instance.endText.text = "You were eliminated by " + killer;
+    }
+    public void DisplayEndResultGroup(bool won, string winner)
+    {
+        DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
+        DuelManager.instance.restartButton.SetActive(true);
+        if (won)
         {
-            StopCoroutine(race);
-            DuelManager.instance.map.SetActive(false);
+            DuelManager.instance.endText.text = "You Won!!!";
         }
-        if (shoot != null)
+        else
         {
-            StopCoroutine(shoot);
-        }
-        for(int i = nextButtonToPress; i < buttonList.Count; i++)
-        {
-            buttonList[i].SetActive(false);
+            Handheld.Vibrate();
+            DuelManager.instance.endText.text = winner + " won!";
         }
     }
 
@@ -204,6 +140,7 @@ public class Player : NetworkBehaviour {
         if (won && !ServerDuel.instance.CheckWin())
         {
             hasWon = true;
+            ServerDuel.instance.SomeoneHasWonDuel();
         }
         else
         {
@@ -226,6 +163,16 @@ public class Player : NetworkBehaviour {
     [Command]
     public void CmdSetCompassValue(float c)
     {
-        compassValue = c;
+        compassValueCenter = c;
+    }
+    [Command]
+    public void CmdGroupShoot(float c)
+    {
+        ServerDuel.instance.FindTheTarget(this, c);
+    }
+    [Command]
+    public void CmdUpdateTapRaceNbr(int n)
+    {
+        tapRaceNbr = n;
     }
 }

@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1976004817149818}
+  m_IsPrefabParent: 1
+--- !u!1 &1976004817149818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4281998509520604}
+  - component: {fileID: 114473803219240632}
+  - component: {fileID: 114838305760981810}
+  - component: {fileID: 114273297260035562}
+  - component: {fileID: 114696626803400684}
+  - component: {fileID: 114076992669070398}
+  - component: {fileID: 114069322894218470}
+  m_Layer: 0
+  m_Name: DuelManager
+  m_TagString: DuelManager
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4281998509520604
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114069322894218470
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e151be2efe2ee7d4496a4fe6134bda17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapPrefab: {fileID: 1883202898589950, guid: b5bb20511dc7cdc4c8ea936ab74dbb87, type: 2}
+  mapPrefabGroup: {fileID: 0}
+  startingPositions:
+  - {fileID: 0}
+  - {fileID: 0}
+  startingPositionsGroup: []
+  playerPrefab: {fileID: 1761871272643408, guid: 76de35864ba140041836034437a4f2bd,
+    type: 2}
+  raceEndPos: 3.9
+  nbrOfTouchToWin: 20
+--- !u!114 &114076992669070398
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3935d96afdb429c4e85fa15ef5416c9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonHolderPrefab: {fileID: 1971013930307800, guid: b5d62e8bc5d93da4a8e7376cb4711e88,
+    type: 2}
+--- !u!114 &114273297260035562
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd2ca2218ac2024c969ca348626b799, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114473803219240632
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f98bba839a5fdd9428c9e9dddcac78de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasDuel: {fileID: 0}
+  endText: {fileID: 0}
+  restartButton: {fileID: 0}
+  groupPlay: 0
+  players: []
+  player: {fileID: 0}
+  miniGames: []
+  miniGameIndex: 
+--- !u!114 &114696626803400684
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 718139affbad7374da885d52eafd7309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapPrefab: {fileID: 1157725708696056, guid: f8036440c16aded488d23dfde2c088ad, type: 2}
+  playerPrefab: {fileID: 1686361327155038, guid: ebf78ff615d82fd42a291800fa139d37,
+    type: 2}
+  startingXPosition: 0
+  raceEndPosMin: 30
+  raceEndPosMax: 35
+  cameraOffsetX: 1.5
+  timeInterval: 1
+  timeWorstYouCanDo: 0.24
+  floorHeight: -2.9
+  gravityForce: -8
+  xVelocityMulti: 3.5
+  baseXVelocity: 1.2
+--- !u!114 &114838305760981810
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 201
+    i1: 238
+    i2: 235
+    i3: 151
+    i4: 50
+    i5: 225
+    i6: 126
+    i7: 164
+    i8: 88
+    i9: 255
+    i10: 117
+    i11: 134
+    i12: 97
+    i13: 21
+    i14: 6
+    i15: 216
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0

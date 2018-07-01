@@ -22,4 +22,25 @@ public static class TransformExtensions
         }
         return taggedGameObjects;
     }
+    public static GameObject FindObjectWithTag(this Transform parent, string tag)
+    {
+
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+            if (child.tag == tag)
+            {
+                return child.gameObject;
+            }
+            if (child.childCount > 0)
+            {
+               GameObject f = FindObjectWithTag(child, tag);
+                if (f != null)
+                {
+                    return f;
+                }
+            }
+        }
+return null;
+    }
 }
