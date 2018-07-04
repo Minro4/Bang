@@ -8,6 +8,7 @@ TagManager:
   - Button
   - Spawn
   - FinishLine
+  - CamHolder
   layers:
   - Default
   - TransparentFX

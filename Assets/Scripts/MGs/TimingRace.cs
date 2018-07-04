@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
+using EZCameraShake;
 
 public class TimingRace : NormalMiniGame
 {
@@ -29,6 +31,10 @@ public class TimingRace : NormalMiniGame
     float yVelocity = 0;
     float xVelocity = 0;
     float yVelocityOnJump;
+    Slider powerSlider;
+    TimingMapReference tmr;
+
+    Animator textAnim;
 
     float registeredTime;
 
@@ -54,10 +60,13 @@ public class TimingRace : NormalMiniGame
     {
         raceEndPos = Random.Range(raceEndPosMin, raceEndPosMax);
         map = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
-        GameObject finishLine = TransformExtensions.FindObjectWithTag(map.transform, "FinishLine");
+        tmr = map.GetComponent<TimingMapReference>();
+        textAnim = tmr.feedBackText.GetComponent<Animator>();
+        GameObject finishLine = tmr.finishLine;//TransformExtensions.FindObjectWithTag(map.transform, "FinishLine");
         finishLine.transform.position = new Vector3(raceEndPos, floorHeight, 0);
         indexPlayerOb = (DuelManager.instance.player.playerForMG.Count);
-
+        powerSlider = tmr.powerSlider;
+        powerSlider.value = 0;
         foreach (Player p in DuelManager.instance.players)
         {
             p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
@@ -86,10 +95,10 @@ public class TimingRace : NormalMiniGame
     }
     IEnumerator Timing()
     {
-        Camera cam = Camera.main;
+        Transform camHolder = GameObject.FindGameObjectWithTag("CamHolder").transform;
         xVelocity = 0;
         yVelocity = 0;
-        float timeSinceLastTouch = 0;
+        float timeSinceLastTouch = timeInterval + timeWorstYouCanDo;
         Transform playerTransform = DuelManager.instance.player.playerForMG[indexPlayerOb].transform;
         playerTransform.position = new Vector3(startingXPosition, floorHeight, 0);
         while (playerTransform.position.x < raceEndPos)
@@ -113,12 +122,13 @@ public class TimingRace : NormalMiniGame
                     timeSinceLastTouch = ScreenTouch(timeSinceLastTouch, playerTransform);
                 }
             }
+            SliderUpdate(timeSinceLastTouch);
             JumpUpdate(playerTransform);
-            UpdateCamera(cam, playerTransform);
+            UpdateCamera(camHolder, playerTransform);
             yield return null;
         }
         Debug.Log(raceEndPos + "   " + playerTransform.position);
-        cam.transform.position = Vector3.zero;
+        camHolder.position = Vector3.zero;
         DisplayRace(false);
         DuelManager.instance.MiniGameFinished();
     }
@@ -133,7 +143,8 @@ public class TimingRace : NormalMiniGame
             }
             else
             {
-                Jump(time, playerTransform);              
+                Jump(time, playerTransform);
+                registeredTime = time;
             }
             time = 0;
         }
@@ -146,15 +157,22 @@ public class TimingRace : NormalMiniGame
     }
     void Jump(float time,Transform playerTransform)
     {
-        playerTransform.position += new Vector3(0, 0.01f, 0);
+            playerTransform.position += new Vector3(0, 0.01f, 0);
+            float mult = GetMult(time);
+            xVelocity = baseXVelocity + (xVelocityMulti * mult * mult * mult * mult * mult);
+            yVelocity = yVelocityOnJump;
+            ShowJumpFeedBack(mult);
+        CameraShaker.Instance.ShakeOnce(mult * 5, 0.5f, 0.05f, 0.5f); 
+        
+    }
+    float GetMult(float time)
+    {
         float mult = Mathf.Abs(timeInterval - time);
-        if (mult > timeWorstYouCanDo)  {
+        if (mult > timeWorstYouCanDo)
+        {
             mult = timeWorstYouCanDo;
         }
-        mult = (timeWorstYouCanDo - mult)/timeWorstYouCanDo;
-        xVelocity = baseXVelocity + (xVelocityMulti * mult * mult * mult);
-        yVelocity = yVelocityOnJump;
-        ShowJumpFeedBack(mult);
+        return (timeWorstYouCanDo - mult) / timeWorstYouCanDo;
     }
     void JumpUpdate(Transform playerTransform)
     {
@@ -170,14 +188,38 @@ public class TimingRace : NormalMiniGame
             xVelocity = 0;
         }
     }
-    void UpdateCamera(Camera cam, Transform playerTransform)
+    void SliderUpdate(float time)
     {
-        cam.transform.position = new Vector3(playerTransform.position.x + cameraOffsetX, 0, 0);
+        if (jumpRegistered || time < timeInterval - timeWorstYouCanDo)
+        {
+            time = registeredTime;
+        }
+        float mult = GetMult(time);
+        powerSlider.value = 1 - mult*mult;
+    }
+    void SliderUpdate2(float time)
+    {
+        if (jumpRegistered || time < timeInterval - timeWorstYouCanDo)
+        {
+            time = registeredTime;
+        }
+        if (time < timeInterval)
+        {
+            powerSlider.value = 1 - GetMult(time)/2;
+        }
+        else
+        {
+            powerSlider.value = (GetMult(time))/2;
+        }
+    }
+    void UpdateCamera(Transform camHolder, Transform playerTransform)
+    {
+        camHolder.position = new Vector3(playerTransform.position.x + cameraOffsetX, 0, 0);
     }
 
     void ShowJumpFeedBack(float quality)
     {
-        float[] interval = { 0.35f, 0.7f, 0.85f, 0.95f,1 };
+        float[] interval = { 0.75f, 0.85f, 0.9f, 0.98f,1 };
         int qi = 0;
         string message;
         for (int i =0; i< interval.Length; i++)
@@ -191,13 +233,15 @@ public class TimingRace : NormalMiniGame
 
         switch(qi)
         {
-            case 0: message = "Ok"; break;
+            case 0: message = "Okay"; break;
             case 1: message = "Good"; break;
             case 2: message = "Great"; break;
             case 3: message = "Incredible"; break;
             case 4: message = "Perfect"; break;
-            default: message = "Ok"; break;
+            default: message = "Okay"; break;
         }
+        textAnim.SetTrigger("TextAppear");
+        tmr.feedBackText.text = message;
         Debug.Log(message);
     }
     //void Jump(float height)

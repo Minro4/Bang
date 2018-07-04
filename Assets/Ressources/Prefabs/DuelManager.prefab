@@ -58,9 +58,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapPrefab: {fileID: 1883202898589950, guid: b5bb20511dc7cdc4c8ea936ab74dbb87, type: 2}
   mapPrefabGroup: {fileID: 0}
-  startingPositions:
-  - {fileID: 0}
-  - {fileID: 0}
   startingPositionsGroup: []
   playerPrefab: {fileID: 1761871272643408, guid: 76de35864ba140041836034437a4f2bd,
     type: 2}
@@ -124,15 +121,15 @@ MonoBehaviour:
   playerPrefab: {fileID: 1686361327155038, guid: ebf78ff615d82fd42a291800fa139d37,
     type: 2}
   startingXPosition: 0
-  raceEndPosMin: 30
-  raceEndPosMax: 35
+  raceEndPosMin: 55
+  raceEndPosMax: 65
   cameraOffsetX: 1.5
-  timeInterval: 1
-  timeWorstYouCanDo: 0.24
+  timeInterval: 1.1
+  timeWorstYouCanDo: 0.8
   floorHeight: -2.9
-  gravityForce: -8
-  xVelocityMulti: 3.5
-  baseXVelocity: 1.2
+  gravityForce: -9
+  xVelocityMulti: 6
+  baseXVelocity: 1.25
 --- !u!114 &114838305760981810
 MonoBehaviour:
   m_ObjectHideFlags: 1
