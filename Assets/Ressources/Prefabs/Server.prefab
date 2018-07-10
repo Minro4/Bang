@@ -35,7 +35,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1408511374654022}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5665286, y: 0.4052796, z: 17.643646}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -84,7 +84,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d93787a2bbce09b4880c4083a58c5195, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  testingMG: 0
+  testedMGIndex: 3
   timeBeforeStartMin: 2.5
   timeBeforeStartMax: 5
-  livingPlayers: []
   numberOfMGBeforeShoot: 3
+  needToCalibrate: 0

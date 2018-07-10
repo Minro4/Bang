@@ -54,7 +54,7 @@ public class TapRace : NormalMiniGame
                 p.playerForMG[indexPlayerOb].transform.parent = p.transform;
             }
             DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = startingPos[0].transform.position;
-            if (DuelManager.instance.players.Length > 1)                                                                                                                //ENLEVER CA CEST JUSTE POUR TESTER
+            if (DuelManager.instance.players.Count > 1)                                                                                                                //ENLEVER CA CEST JUSTE POUR TESTER
             {
                 int index;
                 if (DuelManager.instance.player.index == 0)
@@ -76,12 +76,13 @@ public class TapRace : NormalMiniGame
             SetStartPos(map);
             indexPlayerOb = (DuelManager.instance.player.playerForMG.Count);
 
-            if (ServerDuel.instance.livingPlayers.Count > 2)           
+            if (DuelManager.instance.livingPlayers.Count > 2)           
             {
                for (int i = -1; i <= 1; i++)
                 {
-                    Player p = ServerDuel.instance.livingPlayers[DuelManager.instance.player.index + i]; // ca ca marche pas parce que tu peux pas sync var la liste
+                    Player p = DuelManager.instance.livingPlayers[DuelManager.instance.player.index + i]; // ca ca marche pas parce que tu peux pas sync var la liste
                     p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
+                    p.playerForMG[indexPlayerOb].GetComponent<MiniGamePlayer>().miniGame = this;
                     p.playerForMG[indexPlayerOb].GetComponent<SpriteRenderer>().color = p.color;
                     p.playerForMG[indexPlayerOb].transform.parent = p.transform;
                     DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = startingPos[i +1].transform.position;
@@ -101,7 +102,11 @@ public class TapRace : NormalMiniGame
             }
         }
     }
-   
+    public override void ResetGame()
+    {
+        SetStartPos(map);
+        DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = startingPos[0].transform.position;
+    }
     void SetStartPos(GameObject holder)
     {
         startingPos = TransformExtensions.FindObjectsWithTag(holder.transform, "Spawn").ToArray();
@@ -111,11 +116,28 @@ public class TapRace : NormalMiniGame
     public override void UnloadObjects()
     {
         Destroy(map);
-        foreach (Player p in DuelManager.instance.players)
-        {
-            Destroy(p.playerForMG[indexPlayerOb]);
-            p.playerForMG.RemoveAt(indexPlayerOb);
-        }
+        //int index = -1;   //LE CODE POUR QUE CA RELOAD PAS LES CHOSES QUI SONT DEJA LOAD MAIS AUSSI CHECKER LES UNLOAD DES MINIGAME POUR ENLEVER LES COMMENTAIRES
+        //for (int i = 0; i < DuelManager.instance.player.playerForMG.Count; i++)
+        //{
+        //    if (DuelManager.instance.player.playerForMG[i].GetComponent<MiniGamePlayer>().miniGame = this)
+        //    {
+        //        index = i;
+        //        return;
+        //    }
+        //}
+        //if (index == -1)
+        //{
+        //    Debug.Log("Rien a unload");
+        //    return;
+        //}
+        ////DeleteTheThings
+        //foreach (Player p in DuelManager.instance.players)
+        //{
+        //    Destroy(p.playerForMG[index]);
+        //    p.playerForMG.RemoveAt(index);
+
+
+        //}
     }
 
     IEnumerator Race()
@@ -163,5 +185,9 @@ public class TapRace : NormalMiniGame
     float NbrTapToPosY(int nbr)
     {
         return  (lenghtOfRace *nbr / nbrOfTouchToWin) + raceStartPos;
+    }
+    public override void SetPlayerOb(int index)
+    {
+        indexPlayerOb = index;
     }
 }

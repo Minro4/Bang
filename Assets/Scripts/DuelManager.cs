@@ -9,8 +9,12 @@ public class DuelManager : NetworkBehaviour {
     public const int minimumGroupPlayer = 3;
     public Canvas canvasDuel;
     public Text endText;
-    public GameObject restartButton;
 
+    public GameObject restartButton;
+    public GameObject restartNumber;
+
+    public Color restartGreen;
+    public Color restartRed;
 
     //  public Color playerColor;
     // public Color otherPlayerColor;
@@ -21,30 +25,39 @@ public class DuelManager : NetworkBehaviour {
     bool doingServerSetup;
     public bool groupPlay = false;
 
-    [HideInInspector] public Player[] players;
+    [HideInInspector] public List<Player> livingPlayers = new List<Player>();             //g
+
+    [HideInInspector] public List<Player> players;
     [HideInInspector] public Player player;
 
     [HideInInspector] public List<MiniGame> miniGames = new List<MiniGame>();
   //  Shoot shootMG;
-    [HideInInspector] public int[] miniGameIndex;
+    [HideInInspector] public int[] miniGameIndex = null;
 
     const float timeWaitForServer = 0.1f;
 
     bool setupDone = false;
 
+    [SyncVar]
+    public int playerWhoWantsToRestart = 0;
 
     void Start () {
         instance = this;
         instance.setupDone = false;
-        Invoke("Setup",1f);
+        Invoke("GetPlayersMG", 1f);
     }
-    public void Setup()
+    void GetPlayersMG()
     {
         instance.players = GetPlayers();
         GetMiniGameList();
+        Setup();
+    }
+    public void Setup()
+    {
+       
         ResetVar();
 
-        if (instance.players.Length >= minimumGroupPlayer)                    //Setup for Group
+        if (instance.players.Count >= minimumGroupPlayer)                    //Setup for Group
         {
             instance.groupPlay = true;
             StartCoroutine(SetupGroup());
@@ -65,7 +78,7 @@ public class DuelManager : NetworkBehaviour {
             ServerDuel.instance.FStart();
         }
     }
-    Player[] GetPlayers()
+    List<Player> GetPlayers()
     {
         GameObject[] go = GameObject.FindGameObjectsWithTag("Player");
         if (go.Length == 0)
@@ -79,13 +92,9 @@ public class DuelManager : NetworkBehaviour {
         {
             p.GetComponent<Player>().InitializePlayer();
             pl.Add(p.GetComponent<Player>());
-        }
-        for (int i = 0; i < DuelManager.instance.players.Length; i++)
-        {
-            instance.players[i].index = i;
-        }
+        }       
         //  ModeSetup();
-        return pl.ToArray();
+        return pl;
     }
     IEnumerator SetupGroup()
     {
@@ -189,12 +198,28 @@ public class DuelManager : NetworkBehaviour {
         instance.player.CmdGroupShoot(averagedCompass);
     }
     public void WantsToRestartGame()
-    {
+    {       
         instance.player.CmdRestart(true);
+       // UpdatePlayerRestartCount();
     }
-    public void RestartGame()
+    public void UpdatePlayerRestartCount()
     {
-        ResetVar();
+            restartNumber.GetComponentInChildren<Text>().text = instance.playerWhoWantsToRestart + "/" + instance.players.Count;
+      //  restartNumber.GetComponent<Image>().color = instance.restartGreen;
+        
+    }
+    public void RestartGame(bool recalibrate)
+    {
+        
+        if (recalibrate)
+        {
+            Setup();
+        }
+        else
+        {
+            ResetVar();
+            SetupGameStart();
+        }
     }
     void ResetVar()
     {      
@@ -202,10 +227,16 @@ public class DuelManager : NetworkBehaviour {
         {
             p.ResetPlayer();
         }
+        instance.livingPlayers = instance.players;
+        for (int i = 0; i < instance.livingPlayers.Count; i++)
+        {
+            instance.livingPlayers[i].index = i;
+        }
         StopUpdates();
        // udUpdate = StartCoroutine(SendUDUpdate());
         //compassUpdate = StartCoroutine(SendCompassUpdate());
         instance.restartButton.SetActive(false);
+        instance.restartNumber.SetActive(false);
     }
     IEnumerator SendUDUpdate()
     {
@@ -314,20 +345,73 @@ public class DuelManager : NetworkBehaviour {
             Debug.Log("Start Game " + player.currentMGIndex + " Index: " + miniGameIndex[player.currentMGIndex]);
             miniGames[miniGameIndex[player.currentMGIndex]].StartMiniGame();
     }
-    IEnumerator LoadObjectsForMG()
+    IEnumerator LoadObjectsForMG(int[] loaded)
     {
         while(!setupDone)
         {
             yield return null;
         }
-        for (int i =0; i < instance.miniGameIndex.Length;i++ )
+                                    //LE CODE POUR QUE CA RELOAD PAS LES CHOSES QUI SONT DEJA LOAD MAIS AUSSI CHECKER LES UNLOAD DES MINIGAME POUR ENLEVER LES COMMENTAIRES
+        //List<int> mgToLoad = new List<int>();
+        //List<int> mgToUnload = new List<int>();
+        //List<int> mgToSort = new List<int>();
+
+
+        //foreach (int index in loaded)
+        //{
+        //    mgToUnload.Add(index);
+        //}
+        //foreach (int i in instance.miniGameIndex)
+        //{
+        //    bool isLoaded = false;
+        //    foreach(int j in loaded)
+        //    {
+        //        if (i == j)
+        //        {
+        //            mgToUnload.Remove(j);
+        //            mgToSort.Add(j);
+        //            isLoaded = true;
+        //            continue;
+        //        }
+        //    }
+        //    if (!isLoaded)
+        //    {
+        //        mgToLoad.Add(i);
+        //    }
+        //}
+        //foreach (int i in mgToUnload)
+        //{
+        //    instance.miniGames[i].UnloadObjects();
+        //}
+        //foreach(int i in mgToSort)
+        //{
+        //    for (int j = 0; j < DuelManager.instance.player.playerForMG.Count; j++)
+        //    {
+        //        if (DuelManager.instance.player.playerForMG[j].GetComponent<MiniGamePlayer>().miniGame = instance.miniGames[i])
+        //        {
+        //            instance.miniGames[i].SetPlayerOb(j);
+        //        }
+        //    }
+        //    DuelManager.instance.miniGames[i].ResetGame();
+        //}
+        //foreach (int i in mgToLoad)
+        //{
+        //    instance.miniGames[i].LoadObjects();
+        //}
+
+        foreach(Player p in DuelManager.instance.players)
+        {
+            foreach(GameObject go in p.playerForMG)
+            {
+                Destroy(go);
+            }
+            p.playerForMG.Clear();
+        }
+        for (int i = 0; i < instance.miniGameIndex.Length; i++)
         {
             miniGames[instance.miniGameIndex[i]].LoadObjects();
         }
-        //foreach(MiniGame Mg in miniGames)
-        //{
-        //    Mg.LoadObjects();
-        //}
+
     }
     public MiniGame GetMiniGame(int index)
     {
@@ -380,9 +464,9 @@ public class DuelManager : NetworkBehaviour {
          }
     }
     [ClientRpc]
-    public void RpcRestart()
+    public void RpcRestart(bool recalibrate)
     {
-        RestartGame();
+        RestartGame(recalibrate);
     }
     [ClientRpc]
     public void RpcServerSetup(bool w)
@@ -390,23 +474,42 @@ public class DuelManager : NetworkBehaviour {
         instance.doingServerSetup = w;
     }
     [ClientRpc]
-    public void RpcHasDied(string victim,string shooter)
+    public void RpcHasDied(int victim,int shooter)
     {
-        if (player.name == victim)
+        if (player.index == victim)
         {
-            player.DisplayYouDiedGroup(shooter);
+            player.DisplayYouDiedGroup(instance.livingPlayers[shooter].name);
         }
         else
         {
-            Debug.Log(victim + "has been eliminated by " + shooter);
+            Debug.Log(instance.livingPlayers[victim].name + "has been eliminated by " + instance.livingPlayers[shooter].name);
         }
+        for (int i = victim + 1; i < instance.livingPlayers.Count; i++)
+        {
+            DuelManager.instance.livingPlayers[i].index -= 1;
+        }
+        DuelManager.instance.livingPlayers.RemoveAt(victim);
+       
     }
     [ClientRpc]
     public void RpcMiniGameList(int[] mgL)
     {
+        int[] loaded = instance.miniGameIndex;
         instance.miniGameIndex = mgL;
-        StartCoroutine(LoadObjectsForMG());
+        StartCoroutine(LoadObjectsForMG(loaded));
     }
+    [ClientRpc]
+    public void RpcUpdatePlayerRestartCount()
+    {
+        UpdatePlayerRestartCount();
+    }
+    [ClientRpc]
+    public void RpcRemovePlayer(int index)
+    {
+        instance.livingPlayers.RemoveAt(index);
+    }
+
+
 }
 
 //IEnumerator EnablePosition()

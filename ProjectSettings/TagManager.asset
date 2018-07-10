@@ -9,6 +9,7 @@ TagManager:
   - Spawn
   - FinishLine
   - CamHolder
+  - Wheel
   layers:
   - Default
   - TransparentFX

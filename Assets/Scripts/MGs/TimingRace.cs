@@ -38,6 +38,7 @@ public class TimingRace : NormalMiniGame
 
     float registeredTime;
 
+
     private void Start()
     {
         yVelocityOnJump = -gravityForce * timeInterval / 2;
@@ -70,6 +71,7 @@ public class TimingRace : NormalMiniGame
         foreach (Player p in DuelManager.instance.players)
         {
             p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
+            p.playerForMG[indexPlayerOb].GetComponent<MiniGamePlayer>().miniGame = this;
             p.playerForMG[indexPlayerOb].GetComponent<SpriteRenderer>().color = p.color;
             p.playerForMG[indexPlayerOb].transform.parent = p.transform;
             p.playerForMG[indexPlayerOb].transform.position = new Vector3(startingXPosition, floorHeight, 0);
@@ -78,11 +80,38 @@ public class TimingRace : NormalMiniGame
     public override void UnloadObjects()
     {
         Destroy(map);
-        foreach (Player p in DuelManager.instance.players)
-        {
-            Destroy(p.playerForMG[indexPlayerOb]);
-            p.playerForMG.RemoveAt(indexPlayerOb);
-        }
+        //int index = -1;   //LE CODE POUR QUE CA RELOAD PAS LES CHOSES QUI SONT DEJA LOAD MAIS AUSSI CHECKER LES UNLOAD DES MINIGAME POUR ENLEVER LES COMMENTAIRES
+        //for (int i = 0; i < DuelManager.instance.player.playerForMG.Count; i++)
+        //{
+        //    if (DuelManager.instance.player.playerForMG[i].GetComponent<MiniGamePlayer>().miniGame = this)
+        //    {
+        //        index = i;
+        //        return;
+        //    }
+        //}
+        //if (index == -1)
+        //{
+        //    Debug.Log("Rien a unload");
+        //    return;
+        //}
+        ////DeleteTheThings
+        //foreach (Player p in DuelManager.instance.players)
+        //{
+        //    Destroy(p.playerForMG[index]);
+        //    p.playerForMG.RemoveAt(index);
+
+
+        //}
+    }
+    public override void ResetGame()
+    {
+        RepeatingBG[] rpg = map.GetComponentsInChildren<RepeatingBG>();
+        rpg[0].transform.position = new Vector3(0, 0, 0);
+        rpg[1].transform.position = new Vector3(14.5f, 0, 0);
+
+        raceEndPos = Random.Range(raceEndPosMin, raceEndPosMax);
+        tmr.finishLine.transform.position = new Vector3(raceEndPos, floorHeight, 0);
+        DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = new Vector3(startingXPosition, floorHeight, 0);
     }
     public void DisplayRace(bool t)
     {
@@ -242,7 +271,11 @@ public class TimingRace : NormalMiniGame
         }
         textAnim.SetTrigger("TextAppear");
         tmr.feedBackText.text = message;
-        Debug.Log(message);
+    }
+
+    public override void SetPlayerOb(int index)
+    {
+        indexPlayerOb = index;
     }
     //void Jump(float height)
     //{

@@ -18,9 +18,11 @@ public class ServerDuel : NetworkBehaviour
     int consistent = 0;                                         //g
     const int consistentMin = 5;                                //g
 
-    [HideInInspector] public List<Player> livingPlayers = new List<Player>();             //g
 
     public int numberOfMGBeforeShoot;
+
+    public bool needToCalibrate = false;
+
 
     void Start()
     {
@@ -41,11 +43,7 @@ public class ServerDuel : NetworkBehaviour
         while (!PlacePlayers( newPlayerOrder, consistentMin))
         {
             yield return new WaitForSeconds(0.2f);
-        }
-        for (int i =0;i < DuelManager.instance.players.Length; i++)
-        {
-            livingPlayers.Add(DuelManager.instance.players[i]);
-        }
+        }      
         DuelManager.instance.RpcServerSetup(false);
     }
 
@@ -65,7 +63,7 @@ public class ServerDuel : NetworkBehaviour
         });
        DuelManager.instance.endText.text = "";
 
-        if (compareArrays(newPlayerOrder.ToArray(), DuelManager.instance.players))
+        if (compareArrays(newPlayerOrder.ToArray(), DuelManager.instance.players.ToArray()))
         {
             consistent += 1;
             DuelManager.instance.endText.text += "\n Consistent: " + consistent;
@@ -77,7 +75,7 @@ public class ServerDuel : NetworkBehaviour
         else
         {
             DuelManager.instance.endText.text += "\n Consistent Reset";
-            DuelManager.instance.players = newPlayerOrder.ToArray();
+            DuelManager.instance.players = newPlayerOrder;
             consistent = 0;
         }
         return false;
@@ -92,8 +90,10 @@ public class ServerDuel : NetworkBehaviour
     public void Restart()
     {
         showMG = false;
-        DuelManager.instance.RpcRestart();
-        StartCoroutine(DuelPhase1());
+        DuelManager.instance.playerWhoWantsToRestart = 0;
+        DuelManager.instance.RpcRestart(needToCalibrate);
+        needToCalibrate = false;
+
     }
     //IEnumerator WaitingForSetup()
     //{
@@ -167,26 +167,16 @@ public class ServerDuel : NetworkBehaviour
     public void SomeoneHasWonDuel()
     {
         DuelManager.instance.RpcDisplayEnd();
-        StartCoroutine(RestartPhase());
     }
     public void SomeoneHasWonGroup(string winner)
     {
         DuelManager.instance.RpcDisplayEndGroup(winner);
-        StartCoroutine(RestartPhase());
     }
-    IEnumerator RestartPhase()
-    {
-        Debug.Log("RestartPhase");
-        while (!CheckRestart())
-        {
-            yield return null;
-        }
-        Restart();
-    }
+ 
     public void FindTheTarget(Player shooter, float compass)            //g
     {
         int indexTarget;
-        int numberOfPlayers = livingPlayers.Count;
+        int numberOfPlayers = DuelManager.instance.livingPlayers.Count;
         if ((compass - shooter.compassValueCenter)%360 > 180)      //Changer le millieu parce que le milleu va pas toujours etre ca quand le moitier du monde est omrt pi que ya gros du monde qui joue
         {
             indexTarget = (shooter.index - 1) % (numberOfPlayers-1);
@@ -195,13 +185,13 @@ public class ServerDuel : NetworkBehaviour
         {
             indexTarget = (shooter.index + 1) % (numberOfPlayers-1);        
         }
-        DuelManager.instance.RpcHasDied(livingPlayers[indexTarget].name,shooter.name);
+        DuelManager.instance.RpcHasDied(indexTarget, shooter.index);  
         for (int i = indexTarget +1; i < numberOfPlayers; i++)
         {
-            livingPlayers[i].index -= 1;
+            DuelManager.instance.livingPlayers[i].index -= 1;
         }
-        livingPlayers.RemoveAt(indexTarget);
-        if (livingPlayers.Count == 1)
+        DuelManager.instance.livingPlayers.RemoveAt(indexTarget);
+        if (DuelManager.instance.livingPlayers.Count == 1)
         {
             shooter.hasWon = true;
             SomeoneHasWonGroup(shooter.name);
@@ -218,19 +208,19 @@ public class ServerDuel : NetworkBehaviour
     //    }
     //    return true;
     //}
-    bool CheckRestart()
-    {
-        int wtr = 0;
-        foreach(Player p in DuelManager.instance.players)
-        {
-            if (p.wantsToRestart)
-            {
-                wtr += 1;
-            }
-        }
-        //RpcDisplay de number 
-        return (wtr == 2);
-    }
+    //bool CheckRestart()
+    //{
+    //    int wtr = 0;
+    //    foreach(Player p in DuelManager.instance.players)
+    //    {
+    //        if (p.wantsToRestart)
+    //        {
+    //            wtr += 1;
+    //        }
+    //    }
+    //    //RpcDisplay de number 
+    //    return (wtr == 2);
+    //}
     bool allDeviceUD()
     {
         foreach (Player p in DuelManager.instance.players)

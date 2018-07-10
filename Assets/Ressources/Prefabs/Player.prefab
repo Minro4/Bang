@@ -56,12 +56,14 @@ MonoBehaviour:
   finishedShooting: 0
   index: 0
   name: a
-  color: {r: 0, g: 1, b: 0.13257027, a: 1}
+  color: {r: 1, g: 1, b: 1, a: 1}
   isUD: 0
   hasWon: 0
   wantsToRestart: 0
   compassValueCenter: -1
+  wheelXPosition: 0
   currentMGIndex: 0
+  tapRaceNbr: 0
 --- !u!114 &114937955612544102
 MonoBehaviour:
   m_ObjectHideFlags: 1

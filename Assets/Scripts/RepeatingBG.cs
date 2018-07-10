@@ -24,7 +24,7 @@ public class RepeatingBG : MonoBehaviour
         //Check if the difference along the x axis between the main Camera and the position of the object this is attached to is greater than groundHorizontalLength.
         if (transform.position.x < mainCam.transform.position.x- groundHorizontalLength)
         {
-            Debug.Log(transform.position.x);
+            //Debug.Log(transform.position.x);
             //If true, this means this object is no longer visible and we can safely move it forward to be re-used.
             RepositionBackground ();
         }
@@ -38,6 +38,5 @@ public class RepeatingBG : MonoBehaviour
 
         //Move this object from it's position offscreen, behind the player, to the new position off-camera in front of the player.
         transform.position = (Vector2) transform.position + groundOffSet;
-        Debug.Log(transform.position.x);
     }
 }

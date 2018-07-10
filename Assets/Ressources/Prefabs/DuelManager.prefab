@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 114696626803400684}
   - component: {fileID: 114076992669070398}
   - component: {fileID: 114069322894218470}
+  - component: {fileID: 114542126912657646}
   m_Layer: 0
   m_Name: DuelManager
   m_TagString: DuelManager
@@ -101,11 +102,39 @@ MonoBehaviour:
   canvasDuel: {fileID: 0}
   endText: {fileID: 0}
   restartButton: {fileID: 0}
+  restartNumber: {fileID: 0}
+  restartGreen: {r: 0, g: 0, b: 0, a: 0}
+  restartRed: {r: 0, g: 0, b: 0, a: 0}
   groupPlay: 0
+  livingPlayers: []
   players: []
   player: {fileID: 0}
   miniGames: []
   miniGameIndex: 
+  playerWhoWantsToRestart: 0
+--- !u!114 &114542126912657646
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1976004817149818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbd545ca54efd5a4a9e38275edd4df97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapPrefab: {fileID: 1036238788054926, guid: e2cba4b83f7c8934f9c72e534baee531, type: 2}
+  playerPrefab: {fileID: 1334058043597370, guid: 7928a6c4dcf5d244f89f73c10fc4b095,
+    type: 2}
+  floorHeight: -2.9
+  startingXPosition: 0
+  raceEndPosMin: 75
+  raceEndPosMax: 85
+  speedPerAmount: 0.04
+  airResistance: 0.01
+  otherResistance: 0.35
+  cameraOffsetX: 0
+  minMovement: 0.1
 --- !u!114 &114696626803400684
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -121,15 +150,15 @@ MonoBehaviour:
   playerPrefab: {fileID: 1686361327155038, guid: ebf78ff615d82fd42a291800fa139d37,
     type: 2}
   startingXPosition: 0
-  raceEndPosMin: 55
-  raceEndPosMax: 65
+  raceEndPosMin: 30
+  raceEndPosMax: 35
   cameraOffsetX: 1.5
-  timeInterval: 1.1
+  timeInterval: 1
   timeWorstYouCanDo: 0.8
   floorHeight: -2.9
   gravityForce: -9
-  xVelocityMulti: 6
-  baseXVelocity: 1.25
+  xVelocityMulti: 3.5
+  baseXVelocity: 1.2
 --- !u!114 &114838305760981810
 MonoBehaviour:
   m_ObjectHideFlags: 1

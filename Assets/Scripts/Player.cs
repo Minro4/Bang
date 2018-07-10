@@ -19,10 +19,12 @@ public class Player : NetworkBehaviour {
     public bool isUD = false;
     [SyncVar]
     public bool hasWon = false;
-    [SyncVar]
-    public bool wantsToRestart = false;
+    //[SyncVar]
+    //public bool wantsToRestart = false;
     [SyncVar]
     public float compassValueCenter = -1;
+    [SyncVar]
+    public float wheelXPosition;
 
     Vector3 initialPos;
     [HideInInspector]public int currentMGIndex = 0;
@@ -54,14 +56,15 @@ public class Player : NetworkBehaviour {
     {
         //CmdWin(false);
         //CmdUpdateUD(false);
-        wantsToRestart = false;
+       // wantsToRestart = false;
         //hasWon = false;
         isUD = false;
-        playerForMG.Clear();
         finishedShooting = false;
         transform.position = initialPos;
         currentMGIndex = 0;
-    }
+        CmdUpdateWheelPos(0);
+        CmdUpdateTapRaceNbr(0);
+}
     public bool DeviceIsUD()
     {
         return Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown || Input.GetKey(KeyCode.Space);
@@ -99,6 +102,8 @@ public class Player : NetworkBehaviour {
     {
         DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
         DuelManager.instance.restartButton.SetActive(true);
+        DuelManager.instance.restartNumber.SetActive(true);
+        DuelManager.instance.UpdatePlayerRestartCount();
         if (won)
         {
             DuelManager.instance.endText.text = "You Won!!!";
@@ -118,6 +123,7 @@ public class Player : NetworkBehaviour {
     {
         DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
         DuelManager.instance.restartButton.SetActive(true);
+        DuelManager.instance.restartNumber.SetActive(true);
         if (won)
         {
             DuelManager.instance.endText.text = "You Won!!!";
@@ -150,7 +156,25 @@ public class Player : NetworkBehaviour {
     [Command]
     public void CmdRestart(bool w)
     {
-        wantsToRestart = w;
+        if (w)
+        {
+            DuelManager.instance.playerWhoWantsToRestart += 1;
+            if (DuelManager.instance.playerWhoWantsToRestart == DuelManager.instance.players.Count)
+            {
+                ServerDuel.instance.Restart();
+            }
+        }
+        else
+        {
+            DuelManager.instance.RpcRemovePlayer(index);
+            ServerDuel.instance.needToCalibrate = true;
+            //for (int i = index + 1; i < DuelManager.instance.players.Count; i++)
+            //{
+            //    DuelManager.instance.livingPlayers[i].index -= 1;
+            //}
+            DuelManager.instance.players.RemoveAt(index);
+        }
+        DuelManager.instance.RpcUpdatePlayerRestartCount();
     }
     [Command]
     public void CmdStartCompassSetup()
@@ -174,5 +198,10 @@ public class Player : NetworkBehaviour {
     public void CmdUpdateTapRaceNbr(int n)
     {
         tapRaceNbr = n;
+    }
+    [Command]
+    public void CmdUpdateWheelPos(float p)
+    {
+        wheelXPosition = p;
     }
 }

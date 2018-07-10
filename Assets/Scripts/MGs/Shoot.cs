@@ -65,4 +65,11 @@ public class Shoot : MiniGame {
         DuelManager.instance.player.finishedShooting = true;
         Handheld.Vibrate();
     }
+    public override void SetPlayerOb(int index)
+    {
+    }
+
+    public override void ResetGame()
+    {
+    }
 }

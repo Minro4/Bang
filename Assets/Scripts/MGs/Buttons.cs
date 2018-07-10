@@ -37,12 +37,22 @@ public class Buttons : NormalMiniGame
         }
 
     }
+    public override void ResetGame()
+    {
+        buttonList.Clear();
+        SetButtons();
+        foreach (GameObject go in buttonList)
+        {
+            go.SetActive(true);
+        }
+    }
     public override void ClearMiniGame()
     {
         for (int i = nextButtonToPress; i < buttonList.Count; i++)
         {
             buttonList[i].SetActive(false);
         }
+        buttonHolder.SetActive(false);
     }
     public override void StartMiniGame()
     {
@@ -66,6 +76,9 @@ public class Buttons : NormalMiniGame
         {
             Debug.Log("Wrong Button");
         }
+    }
+    public override void SetPlayerOb(int index)
+    {
     }
 
     //List<GameObject> ArrayToList(GameObject[] array)
