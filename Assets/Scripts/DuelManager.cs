@@ -38,7 +38,6 @@ public class DuelManager : NetworkBehaviour {
 
     bool setupDone = false;
 
-    [SyncVar]
     public int playerWhoWantsToRestart = 0;
 
     void Start () {
@@ -46,6 +45,11 @@ public class DuelManager : NetworkBehaviour {
         instance.setupDone = false;
         Invoke("GetPlayersMG", 1f);
     }
+    //private void Update()
+    //{
+    //    Debug.Log("players " + instance.players.Count);
+    //    Debug.Log("living players " + instance.livingPlayers.Count);
+    //}
     void GetPlayersMG()
     {
         instance.players = GetPlayers();
@@ -139,6 +143,7 @@ public class DuelManager : NetworkBehaviour {
                         averagedTime = 0;                      
                         endText.text = "C: " + averagedCompass;
                         instance.player.CmdSetCompassValue(averagedCompass);
+                        instance.player.compassValueCenter = averagedCompass;
                     }
 
                 }
@@ -153,6 +158,10 @@ public class DuelManager : NetworkBehaviour {
                 }
                 
             }
+            else if(SystemInfo.deviceType == DeviceType.Desktop)
+            {
+                instance.player.CmdSetCompassValue(120);
+            }
             else
             {
                  endText.text = "Point the top of your cell phone towards the center of the group";
@@ -166,44 +175,25 @@ public class DuelManager : NetworkBehaviour {
             yield return new WaitForSeconds(0.02f) ;
         }
         endText.text = "Done!";
+        SortPlayersById();
         yield return new WaitForSeconds(1);
         endText.text = "";
         SetupGameStart();
 
     }
     
-    public void StartCompassReading()
+    public void WantsToRestartGame(GameObject button)
     {
-        StartCoroutine(CompassReading());
-    }
-    private IEnumerator CompassReading()
-    {
-        float averagedCompass = 0;
-        int averagedTime = 0;
-        const int averagedTimeMin = 10;
-        float compassValue;
-        float time = 0;
-        const float timeMin = 0.5f;
-
-        while (averagedTime <= averagedTimeMin || time <= timeMin || !player.finishedShooting)
-        {
-            time += Time.deltaTime;
-            averagedTime += 1;
-            compassValue = Input.compass.magneticHeading;       
-              averagedCompass = ((averagedCompass * averagedTime) + compassValue) / (averagedTime);
-          
-            
-            yield return null;
-        }
-        instance.player.CmdGroupShoot(averagedCompass);
-    }
-    public void WantsToRestartGame()
-    {       
+        button.SetActive(false);
         instance.player.CmdRestart(true);
        // UpdatePlayerRestartCount();
     }
-    public void UpdatePlayerRestartCount()
-    {
+    public void UpdatePlayerRestartCount(bool t)
+    {     
+        if (t)
+        {
+            instance.playerWhoWantsToRestart += 1;
+        }
             restartNumber.GetComponentInChildren<Text>().text = instance.playerWhoWantsToRestart + "/" + instance.players.Count;
       //  restartNumber.GetComponent<Image>().color = instance.restartGreen;
         
@@ -223,20 +213,30 @@ public class DuelManager : NetworkBehaviour {
     }
     void ResetVar()
     {      
-        foreach (Player p in players)
+        foreach (Player p in instance.players)
         {
             p.ResetPlayer();
         }
-        instance.livingPlayers = instance.players;
-        for (int i = 0; i < instance.livingPlayers.Count; i++)
-        {
-            instance.livingPlayers[i].index = i;
-        }
+        instance.livingPlayers.Clear();
+        instance.livingPlayers.AddRange(instance.players);
+       
         StopUpdates();
        // udUpdate = StartCoroutine(SendUDUpdate());
         //compassUpdate = StartCoroutine(SendCompassUpdate());
         instance.restartButton.SetActive(false);
         instance.restartNumber.SetActive(false);
+        instance.playerWhoWantsToRestart = 0;
+    }
+    void SortPlayersById()
+    {
+        instance.players.Sort(delegate (Player x, Player y)
+        {
+            return x.id.CompareTo(y.id);
+        });
+        instance.livingPlayers.Sort(delegate (Player x, Player y)
+        {
+            return x.id.CompareTo(y.id);
+        });
     }
     IEnumerator SendUDUpdate()
     {
@@ -336,16 +336,21 @@ public class DuelManager : NetworkBehaviour {
     }
     public void MiniGameFinished()
     {
-        player.currentMGIndex += 1;
+        instance.player.currentMGIndex += 1;
+        StartNextMG();    
+    }
+    public void MiniGameShootFinished()
+    {
+        instance.player.currentMGIndex -= 1;
         StartNextMG();
-       
     }
     void StartNextMG()
     {
-            Debug.Log("Start Game " + player.currentMGIndex + " Index: " + miniGameIndex[player.currentMGIndex]);
+        //    Debug.Log("Start Game " + player.currentMGIndex + " Index: " + miniGameIndex[player.currentMGIndex]);
             miniGames[miniGameIndex[player.currentMGIndex]].StartMiniGame();
     }
-    IEnumerator LoadObjectsForMG(int[] loaded)
+
+    IEnumerator LoadObjectsForMG()
     {
         while(!setupDone)
         {
@@ -399,17 +404,26 @@ public class DuelManager : NetworkBehaviour {
         //    instance.miniGames[i].LoadObjects();
         //}
 
-        foreach(Player p in DuelManager.instance.players)
+        
+        for (int i = 0; i < instance.miniGameIndex.Length; i++)
         {
-            foreach(GameObject go in p.playerForMG)
+            miniGames[instance.miniGameIndex[i]].LoadObjects();
+        }
+
+    }
+    void UnloadObjects()
+    {
+        for (int i = 0; i < instance.miniGameIndex.Length; i++)
+        {
+            miniGames[instance.miniGameIndex[i]].UnloadObjects();
+        }
+        foreach (Player p in DuelManager.instance.players)
+        {
+            foreach (GameObject go in p.playerForMG)
             {
                 Destroy(go);
             }
             p.playerForMG.Clear();
-        }
-        for (int i = 0; i < instance.miniGameIndex.Length; i++)
-        {
-            miniGames[instance.miniGameIndex[i]].LoadObjects();
         }
 
     }
@@ -452,17 +466,17 @@ public class DuelManager : NetworkBehaviour {
     [ClientRpc]
     public void RpcDisplayEnd()
     {
-       
-        player.DisplayEndResult(instance.player.hasWon);       
-    }
-    [ClientRpc]
-    public void RpcDisplayEndGroup(string winner)
-    {
-        if (groupPlay)
+        if (!instance.player.hasWon)
         {
-            player.DisplayEndResultGroup(player.hasWon, winner);
-         }
+            player.DisplayEndResult(false);
+        }       
     }
+    //[ClientRpc]
+    //public void RpcDisplayEndGroup(string winner)
+    //{
+    //        player.DisplayEndResultGroup(player.hasWon, winner);
+         
+    //}
     [ClientRpc]
     public void RpcRestart(bool recalibrate)
     {
@@ -476,38 +490,49 @@ public class DuelManager : NetworkBehaviour {
     [ClientRpc]
     public void RpcHasDied(int victim,int shooter)
     {
-        if (player.index == victim)
+        //if (victim >= instance.livingPlayers.Count|| shooter >= instance.livingPlayers.Count)
+        //{       
+        //    return;
+        //}
+        if (instance.player.id == victim)
         {
-            player.DisplayYouDiedGroup(instance.livingPlayers[shooter].name);
+            instance.player.DisplayYouDiedGroup(instance.players[shooter].name);
         }
         else
         {
-            Debug.Log(instance.livingPlayers[victim].name + "has been eliminated by " + instance.livingPlayers[shooter].name);
+            Debug.Log(victim + " has been eliminated by " + shooter);
+            //Debug.Log(instance.livingPlayers[victim].name + " has been eliminated by " + instance.livingPlayers[shooter].name);
         }
-        for (int i = victim + 1; i < instance.livingPlayers.Count; i++)
+        DuelManager.instance.livingPlayers.Remove(DuelManager.instance.players[victim]);
+        if (DuelManager.instance.livingPlayers.Count == 1)
         {
-            DuelManager.instance.livingPlayers[i].index -= 1;
+           // instance.livingPlayers[0].hasWon = true;
+            instance.player.DisplayEndResultGroup(instance.player == instance.livingPlayers[0], instance.livingPlayers[0].name);
         }
-        DuelManager.instance.livingPlayers.RemoveAt(victim);
-       
     }
     [ClientRpc]
     public void RpcMiniGameList(int[] mgL)
     {
-        int[] loaded = instance.miniGameIndex;
+        UnloadObjects();
         instance.miniGameIndex = mgL;
-        StartCoroutine(LoadObjectsForMG(loaded));
+        StartCoroutine(LoadObjectsForMG());
     }
     [ClientRpc]
-    public void RpcUpdatePlayerRestartCount()
+    public void RpcUpdatePlayerRestartCount(bool t)
     {
-        UpdatePlayerRestartCount();
+        UpdatePlayerRestartCount(t);
     }
     [ClientRpc]
-    public void RpcRemovePlayer(int index)
+    public void RpcRemovePlayer(int id)
     {
-        instance.livingPlayers.RemoveAt(index);
+        Debug.Log("Jle Fait");
+        instance.players.RemoveAt(id);
     }
+    //[ClientRpc]
+    //public void RcpSetIndex(int i)
+    //{
+    //    index = i;
+    //}
 
 
 }

@@ -13,9 +13,7 @@ public class WheelRoll : NormalMiniGame {
     Coroutine miniGame;
     public float floorHeight;
     public float startingXPosition;
-    public float raceEndPosMin;
-    public float raceEndPosMax;
-    float raceEndPos;
+    public float raceEndPos;
     public float speedPerAmount;
     public float airResistance;
     public float otherResistance;
@@ -42,11 +40,11 @@ public class WheelRoll : NormalMiniGame {
             miniGame = null;
         }
         DisplayRace(false);
+        StopAllCoroutines();
     }
 
     public override void LoadObjects()
     {
-        raceEndPos = Random.Range(raceEndPosMin, raceEndPosMax);
         map = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
         wmr = map.GetComponent<WheelMapReference>();
         wheelCenterOffset = wmr.wheelCenterT.position;
@@ -75,7 +73,6 @@ public class WheelRoll : NormalMiniGame {
         rpg[0].transform.position = new Vector3(0, 0, 0);
         rpg[1].transform.position = new Vector3(14.5f, 0, 0);
 
-        raceEndPos = Random.Range(raceEndPosMin, raceEndPosMax);
         wmr.finishLine.transform.position = new Vector3(raceEndPos, floorHeight, 0);
         DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = new Vector3(startingXPosition, floorHeight, 0);
     }
@@ -162,14 +159,6 @@ public class WheelRoll : NormalMiniGame {
                 swipeDelta = Vector2.zero;
 
                 endTouch = GetCurrentWorldPos(Input.touchCount > 0, camSec);
-                //if (Input.touchCount > 0)
-                //{
-                //    endTouch = GetCurrentWorldPos(true, camSec);
-                //}
-                //else if (Input.GetMouseButton(0))
-                //{
-                //    endTouch = GetCurrentWorldPos(false, camSec);
-                //}
                 swipeDelta = endTouch - startTouch;
 
                 if (swipeDelta.magnitude > minMovement)
@@ -188,14 +177,6 @@ public class WheelRoll : NormalMiniGame {
                     }
                     RotateWheel(projection.magnitude, clockwise);
                     startTouch = GetCurrentWorldPos(Input.touchCount > 0, camSec);
-                    //if (Input.touchCount > 0)
-                    //{
-                    //    startTouch = GetCurrentWorldPos(true, camSec);
-                    //}
-                    //else
-                    //{
-                    //    startTouch = GetCurrentWorldPos(false, camSec);
-                    //}
                 }
 
             }
@@ -237,7 +218,10 @@ public class WheelRoll : NormalMiniGame {
     {
         foreach (Player p in DuelManager.instance.livingPlayers)
         {
-            p.playerForMG[indexPlayerOb].transform.position = new Vector3(p.wheelXPosition, floorHeight, 0);
+            if (p != DuelManager.instance.player)
+            {
+                p.playerForMG[indexPlayerOb].transform.position = new Vector3(p.wheelXPosition, floorHeight, 0);
+            }            
         }
     }
     void UpdateCamera(Transform camHolder, Transform playerTransform)

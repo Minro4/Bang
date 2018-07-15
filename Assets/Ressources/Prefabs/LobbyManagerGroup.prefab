@@ -3838,15 +3838,15 @@ MonoBehaviour:
   m_ShowLobbyGUI: 0
   m_MaxPlayers: 6
   m_MaxPlayersPerConnection: 1
-  m_MinPlayers: 2
+  m_MinPlayers: 1
   m_LobbyPlayerPrefab: {fileID: 11487034, guid: ad727d7e1462ecc4f83c898ecc501997,
     type: 2}
   m_GamePlayerPrefab: {fileID: 1302731850488584, guid: b12e741d58550764a9fcbe29b7394a82,
     type: 2}
   m_LobbyScene: NetworkLobby
-  m_PlayScene: Group
+  m_PlayScene: Duel
   lobbySlots: []
-  prematchCountdown: 3
+  prematchCountdown: 0
   topPanel: {fileID: 114214969125977730}
   mainMenuPanel: {fileID: 224265892219748432}
   lobbyPanel: {fileID: 224388348507902926}

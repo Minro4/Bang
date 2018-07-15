@@ -21,7 +21,7 @@ public class ServerDuel : NetworkBehaviour
 
     public int numberOfMGBeforeShoot;
 
-    public bool needToCalibrate = false;
+    [HideInInspector]public bool needToCalibrate = false;
 
 
     void Start()
@@ -29,7 +29,10 @@ public class ServerDuel : NetworkBehaviour
         instance = this;
         //StartCoroutine(WaitingForSetup());
     }
-
+    //private void Update()
+    //{
+    //    Debug.Log(DuelManager.instance.livingPlayers.Count);
+    //}
     public IEnumerator CompassSetup()                       //g
     {
         consistent = 0;
@@ -69,14 +72,21 @@ public class ServerDuel : NetworkBehaviour
             DuelManager.instance.endText.text += "\n Consistent: " + consistent;
             if (consistent >= consistentMin)
             {
+                for (int i = 0; i < DuelManager.instance.players.Count; i++)
+                {
+                    DuelManager.instance.players[i].id = i;
+
+                }
                 return true;
             }
         }
         else
         {
             DuelManager.instance.endText.text += "\n Consistent Reset";
-            DuelManager.instance.players = newPlayerOrder;
-            consistent = 0;
+           // DuelManager.instance.players = newPlayerOrder; //fucked
+            DuelManager.instance.players.Clear();
+            DuelManager.instance.players.AddRange(newPlayerOrder);
+           consistent = 0;
         }
         return false;
     }
@@ -105,7 +115,7 @@ public class ServerDuel : NetworkBehaviour
     //}
     IEnumerator DuelPhase1() //Everyone places phone down
     {
-        Debug.Log("Phase1");
+     //   Debug.Log("Phase1");
         while (!allDeviceUD())
         {
             yield return null;
@@ -114,7 +124,7 @@ public class ServerDuel : NetworkBehaviour
     }
     IEnumerator DuelPhase2() //waiting for time to start
     {
-        Debug.Log("Phase2");
+//        Debug.Log("Phase2");
         Coroutine timeUp = null;
 
         timeUp = StartCoroutine(ServerTimeUpdate());
@@ -154,7 +164,7 @@ public class ServerDuel : NetworkBehaviour
     }
     void GamePhase() //need to press buttons   
     {
-        Debug.Log("Phase3");
+     //   Debug.Log("Phase3");
         DuelManager.instance.RpcStartMG();
         DuelManager.instance.RpcStopUpdate();        
         //while (!CheckWin())
@@ -168,35 +178,12 @@ public class ServerDuel : NetworkBehaviour
     {
         DuelManager.instance.RpcDisplayEnd();
     }
-    public void SomeoneHasWonGroup(string winner)
-    {
-        DuelManager.instance.RpcDisplayEndGroup(winner);
-    }
+    //public void SomeoneHasWonGroup(string winner) 
+    //{
+    //    DuelManager.instance.RpcDisplayEndGroup(winner);
+    //}
  
-    public void FindTheTarget(Player shooter, float compass)            //g
-    {
-        int indexTarget;
-        int numberOfPlayers = DuelManager.instance.livingPlayers.Count;
-        if ((compass - shooter.compassValueCenter)%360 > 180)      //Changer le millieu parce que le milleu va pas toujours etre ca quand le moitier du monde est omrt pi que ya gros du monde qui joue
-        {
-            indexTarget = (shooter.index - 1) % (numberOfPlayers-1);
-        }
-        else
-        {
-            indexTarget = (shooter.index + 1) % (numberOfPlayers-1);        
-        }
-        DuelManager.instance.RpcHasDied(indexTarget, shooter.index);  
-        for (int i = indexTarget +1; i < numberOfPlayers; i++)
-        {
-            DuelManager.instance.livingPlayers[i].index -= 1;
-        }
-        DuelManager.instance.livingPlayers.RemoveAt(indexTarget);
-        if (DuelManager.instance.livingPlayers.Count == 1)
-        {
-            shooter.hasWon = true;
-            SomeoneHasWonGroup(shooter.name);
-        }
-    }
+   
     //bool CheckSetup()
     //{
     //    foreach (Player p in DuelManager.instance.players)
@@ -233,17 +220,17 @@ public class ServerDuel : NetworkBehaviour
         }
         return true;
     }
-   public bool CheckWin()
-    {
-        foreach (Player p in DuelManager.instance.players)
-        {
-            if (p.hasWon)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+   //public bool CheckWin()
+   // {
+   //     foreach (Player p in DuelManager.instance.players)
+   //     {
+   //         if (p.hasWon)
+   //         {
+   //             return true;
+   //         }
+   //     }
+   //     return false;
+   // }
 
     float GenerateRandomTime()
     {

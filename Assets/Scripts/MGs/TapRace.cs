@@ -24,6 +24,7 @@ public class TapRace : NormalMiniGame
   
     public override void StartMiniGame()
     {
+        GameObject.FindGameObjectWithTag("camHolder").transform.position = Vector3.zero;
         DuelManager.instance.player.tapRaceNbr = 0;
         DuelManager.instance.player.CmdUpdateTapRaceNbr(0);
         DisplayRace(true);
@@ -37,6 +38,7 @@ public class TapRace : NormalMiniGame
             race = null;
         }
         DisplayRace(false);
+        StopAllCoroutines();
     }
     public override void LoadObjects()
     {
@@ -45,61 +47,22 @@ public class TapRace : NormalMiniGame
         {
             map = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
             SetStartPos(map);
-            indexPlayerOb = (DuelManager.instance.player.playerForMG.Count);
-
-            foreach (Player p in DuelManager.instance.players)
-            {
-                p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
-                p.playerForMG[indexPlayerOb].GetComponent<SpriteRenderer>().color = p.color;
-                p.playerForMG[indexPlayerOb].transform.parent = p.transform;
-            }
-            DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = startingPos[0].transform.position;
-            if (DuelManager.instance.players.Count > 1)                                                                                                                //ENLEVER CA CEST JUSTE POUR TESTER
-            {
-                int index;
-                if (DuelManager.instance.player.index == 0)
-                {
-                    index = 1;
-                }
-                else
-                {
-                    index = 0;
-                }
-                DuelManager.instance.players[index].playerForMG[indexPlayerOb].transform.position = startingPos[1].transform.position;  //CEST CA QUI BUG
-                //DuelManager.instance.players[(DuelManager.instance.player.index + 1) % 2].playerForMG[indexPlayerOb].transform.position = startingPos[1].transform.position;
-            }
+            indexPlayerOb = (DuelManager.instance.player.playerForMG.Count);           
         }
 
         else
         {
             map = Instantiate(mapPrefabGroup, Vector3.zero, Quaternion.identity);
             SetStartPos(map);
-            indexPlayerOb = (DuelManager.instance.player.playerForMG.Count);
-
-            if (DuelManager.instance.livingPlayers.Count > 2)           
-            {
-               for (int i = -1; i <= 1; i++)
-                {
-                    Player p = DuelManager.instance.livingPlayers[DuelManager.instance.player.index + i]; // ca ca marche pas parce que tu peux pas sync var la liste
-                    p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
-                    p.playerForMG[indexPlayerOb].GetComponent<MiniGamePlayer>().miniGame = this;
-                    p.playerForMG[indexPlayerOb].GetComponent<SpriteRenderer>().color = p.color;
-                    p.playerForMG[indexPlayerOb].transform.parent = p.transform;
-                    DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = startingPos[i +1].transform.position;
-                }
-            }
-            else         //au cas ou cest fucked up
-            {
-                foreach (Player p in DuelManager.instance.players)
-                {
-                    p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
-                    p.playerForMG[indexPlayerOb].GetComponent<SpriteRenderer>().color = p.color;
-                    p.playerForMG[indexPlayerOb].transform.parent = p.transform;
-                   
-                }
-                DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = startingPos[0].transform.position;
-                DuelManager.instance.players[(DuelManager.instance.player.index + 1) % 2].playerForMG[indexPlayerOb].transform.position = startingPos[1].transform.position;
-            }
+            indexPlayerOb = (DuelManager.instance.player.playerForMG.Count);       
+        }
+        for (int i = 0; i < DuelManager.instance.players.Count; i++)
+        {
+            Player p = DuelManager.instance.players[i];
+            p.playerForMG.Add(Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
+            p.playerForMG[indexPlayerOb].GetComponent<SpriteRenderer>().color = p.color;
+            p.playerForMG[indexPlayerOb].transform.parent = p.transform;
+            p.playerForMG[indexPlayerOb].transform.position = startingPos[i].transform.position;
         }
     }
     public override void ResetGame()

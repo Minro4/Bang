@@ -10,18 +10,18 @@ public class Player : NetworkBehaviour {
     // [HideInInspector] public SpriteRenderer sprite;
 
     [HideInInspector]public List<GameObject> playerForMG = new List<GameObject>();
-    public bool finishedShooting = false;
-    public int index;
+    //public bool finishedShooting = false;
+    [SyncVar]
+    public int id;
     public string name = "a";
     public Color color;
 
     [SyncVar]
     public bool isUD = false;
-    [SyncVar]
-    public bool hasWon = false;
+
+    //public bool hasWon = false;
     //[SyncVar]
     //public bool wantsToRestart = false;
-    [SyncVar]
     public float compassValueCenter = -1;
     [SyncVar]
     public float wheelXPosition;
@@ -32,6 +32,8 @@ public class Player : NetworkBehaviour {
     //Mini Game Related Vars
     [SyncVar]
     public int tapRaceNbr;
+
+    public bool hasWon = false; //juste pour duel
 
 
 
@@ -59,11 +61,13 @@ public class Player : NetworkBehaviour {
        // wantsToRestart = false;
         //hasWon = false;
         isUD = false;
-        finishedShooting = false;
+     //   finishedShooting = false;
         transform.position = initialPos;
         currentMGIndex = 0;
-        CmdUpdateWheelPos(0);
-        CmdUpdateTapRaceNbr(0);
+        tapRaceNbr = 0;
+        wheelXPosition = 0;
+        hasWon = false;
+        
 }
     public bool DeviceIsUD()
     {
@@ -78,7 +82,7 @@ public class Player : NetworkBehaviour {
     //}
     public void ShootSomeone()
     {
-        CmdWin(true);
+        CmdWin();
         DisplayEndResult(true);
     }
 
@@ -103,7 +107,7 @@ public class Player : NetworkBehaviour {
         DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
         DuelManager.instance.restartButton.SetActive(true);
         DuelManager.instance.restartNumber.SetActive(true);
-        DuelManager.instance.UpdatePlayerRestartCount();
+        DuelManager.instance.UpdatePlayerRestartCount(false);
         if (won)
         {
             DuelManager.instance.endText.text = "You Won!!!";
@@ -124,6 +128,7 @@ public class Player : NetworkBehaviour {
         DuelManager.instance.GetMiniGame(currentMGIndex).ClearMiniGame();
         DuelManager.instance.restartButton.SetActive(true);
         DuelManager.instance.restartNumber.SetActive(true);
+        DuelManager.instance.UpdatePlayerRestartCount(false);
         if (won)
         {
             DuelManager.instance.endText.text = "You Won!!!";
@@ -135,46 +140,49 @@ public class Player : NetworkBehaviour {
         }
     }
 
+    public int GetLPIndex()
+    {
+        for(int i =0; i < DuelManager.instance.livingPlayers.Count;i++)
+        {
+            if (DuelManager.instance.livingPlayers[i] == this)
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     [Command]
     void CmdUpdateUD(bool ud)
     {
         isUD = ud;
     }
     [Command]
-    void CmdWin(bool won)
+    void CmdWin()
     {
-        if (won && !ServerDuel.instance.CheckWin())
-        {
-            hasWon = true;
-            ServerDuel.instance.SomeoneHasWonDuel();
-        }
-        else
-        {
-            hasWon = false;
-        }
+        hasWon = true;
+        DuelManager.instance.player.DisplayEndResult(true);
+        ServerDuel.instance.SomeoneHasWonDuel();
     }
     [Command]
-    public void CmdRestart(bool w)
+    public void CmdRestart(bool playerWantsToRestart)
     {
-        if (w)
+        if (playerWantsToRestart)
         {
-            DuelManager.instance.playerWhoWantsToRestart += 1;
-            if (DuelManager.instance.playerWhoWantsToRestart == DuelManager.instance.players.Count)
+           // DuelManager.instance.playerWhoWantsToRestart += 1;
+            if (DuelManager.instance.playerWhoWantsToRestart+1 == DuelManager.instance.players.Count)
             {
                 ServerDuel.instance.Restart();
+                return;
             }
         }
         else
         {
-            DuelManager.instance.RpcRemovePlayer(index);
-            ServerDuel.instance.needToCalibrate = true;
-            //for (int i = index + 1; i < DuelManager.instance.players.Count; i++)
-            //{
-            //    DuelManager.instance.livingPlayers[i].index -= 1;
-            //}
-            DuelManager.instance.players.RemoveAt(index);
+            DuelManager.instance.RpcRemovePlayer(id);
+            ServerDuel.instance.needToCalibrate = true;          
+         //   DuelManager.instance.players.RemoveAt(index);
         }
-        DuelManager.instance.RpcUpdatePlayerRestartCount();
+        DuelManager.instance.RpcUpdatePlayerRestartCount(playerWantsToRestart);
     }
     [Command]
     public void CmdStartCompassSetup()
@@ -190,9 +198,10 @@ public class Player : NetworkBehaviour {
         compassValueCenter = c;
     }
     [Command]
-    public void CmdGroupShoot(float c)
+    public void CmdGroupShoot(int indexTarget, int indexShooter)
     {
-        ServerDuel.instance.FindTheTarget(this, c);
+        DuelManager.instance.RpcHasDied(indexTarget, indexShooter);
+        //ServerDuel.instance.FindTheTarget(this, c);
     }
     [Command]
     public void CmdUpdateTapRaceNbr(int n)
@@ -204,4 +213,5 @@ public class Player : NetworkBehaviour {
     {
         wheelXPosition = p;
     }
+   
 }

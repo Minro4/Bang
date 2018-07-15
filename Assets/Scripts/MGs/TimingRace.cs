@@ -13,9 +13,7 @@ public class TimingRace : NormalMiniGame
     GameObject map;
     Coroutine timing;
     public float startingXPosition;
-    public float raceEndPosMin;
-    public float raceEndPosMax;
-    float raceEndPos;
+    public float raceEndPos;
 
     // public float maxHeightToRegisterTouch;
     public float cameraOffsetX;
@@ -56,10 +54,10 @@ public class TimingRace : NormalMiniGame
             timing = null;
         }
         DisplayRace(false);
+        StopAllCoroutines();
     }
     public override void LoadObjects()
     {
-        raceEndPos = Random.Range(raceEndPosMin, raceEndPosMax);
         map = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
         tmr = map.GetComponent<TimingMapReference>();
         textAnim = tmr.feedBackText.GetComponent<Animator>();
@@ -109,7 +107,6 @@ public class TimingRace : NormalMiniGame
         rpg[0].transform.position = new Vector3(0, 0, 0);
         rpg[1].transform.position = new Vector3(14.5f, 0, 0);
 
-        raceEndPos = Random.Range(raceEndPosMin, raceEndPosMax);
         tmr.finishLine.transform.position = new Vector3(raceEndPos, floorHeight, 0);
         DuelManager.instance.player.playerForMG[indexPlayerOb].transform.position = new Vector3(startingXPosition, floorHeight, 0);
     }
@@ -156,7 +153,6 @@ public class TimingRace : NormalMiniGame
             UpdateCamera(camHolder, playerTransform);
             yield return null;
         }
-        Debug.Log(raceEndPos + "   " + playerTransform.position);
         camHolder.position = Vector3.zero;
         DisplayRace(false);
         DuelManager.instance.MiniGameFinished();

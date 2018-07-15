@@ -86,7 +86,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   testingMG: 0
   testedMGIndex: 3
-  timeBeforeStartMin: 2.5
-  timeBeforeStartMax: 5
-  numberOfMGBeforeShoot: 3
+  timeBeforeStartMin: 0.1
+  timeBeforeStartMax: 0.2
+  numberOfMGBeforeShoot: 1
   needToCalibrate: 0

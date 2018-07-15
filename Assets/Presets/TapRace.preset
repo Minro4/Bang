@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: TapRace
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: e151be2efe2ee7d4496a4fe6134bda17,
+      type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Name
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: mapPrefab
+    value: 
+    objectReference: {fileID: 1883202898589950, guid: b5bb20511dc7cdc4c8ea936ab74dbb87,
+      type: 2}
+  - target: {fileID: 0}
+    propertyPath: mapPrefabGroup
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: startingPositionsGroup.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: playerPrefab
+    value: 
+    objectReference: {fileID: 1761871272643408, guid: 76de35864ba140041836034437a4f2bd,
+      type: 2}
+  - target: {fileID: 0}
+    propertyPath: raceEndPos
+    value: 3.9
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: nbrOfTouchToWin
+    value: 20
+    objectReference: {fileID: 0}

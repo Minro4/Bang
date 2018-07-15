@@ -453,7 +453,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &145168
 GameObject:
   m_ObjectHideFlags: 1
@@ -604,6 +604,7 @@ GameObject:
   - component: {fileID: 11466428}
   - component: {fileID: 11475086}
   - component: {fileID: 11415508}
+  - component: {fileID: 114621825725680354}
   m_Layer: 5
   m_Name: LobbyManager
   m_TagString: Untagged
@@ -1922,7 +1923,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: CONNECTING...
+  m_Text: Connecting...
 --- !u!114 &11424994
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3256,19 +3257,25 @@ MonoBehaviour:
   m_MatchPort: 443
   matchName: default
   matchSize: 4
-  isNetworkActive: 0
-  matchMaker: {fileID: 0}
+  isNetworkActive: 1
+  matchMaker: {fileID: 114621825725680354}
   m_ShowLobbyGUI: 0
-  m_MaxPlayers: 3
-  m_MaxPlayersPerConnection: 1
-  m_MinPlayers: 1
+  m_MaxPlayers: 6
+  m_MaxPlayersPerConnection: 6
+  m_MinPlayers: 3
   m_LobbyPlayerPrefab: {fileID: 11487034, guid: ad727d7e1462ecc4f83c898ecc501997,
     type: 2}
   m_GamePlayerPrefab: {fileID: 1302731850488584, guid: b12e741d58550764a9fcbe29b7394a82,
     type: 2}
   m_LobbyScene: NetworkLobby
   m_PlayScene: Duel
-  lobbySlots: []
+  lobbySlots:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   prematchCountdown: 0
   topPanel: {fileID: 11424994}
   mainMenuPanel: {fileID: 22442386}
@@ -3279,8 +3286,8 @@ MonoBehaviour:
   backButton: {fileID: 11477488}
   statusInfo: {fileID: 11403930}
   hostInfo: {fileID: 11415712}
-  _playerNumber: 0
-  _isMatchmaking: 0
+  _playerNumber: 2
+  _isMatchmaking: 1
 --- !u!114 &11476426
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3938,7 +3945,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: CANCEL
+  m_Text: Cancel
 --- !u!114 &11499368
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4401,7 +4408,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000021784817}
+  m_AnchoredPosition: {x: 0, y: 0.000007946803}
   m_SizeDelta: {x: -83, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &22402218
@@ -5539,7 +5546,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0.99999994}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5695,3 +5702,14 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 155310}
   m_IsPrefabParent: 1
+--- !u!114 &114621825725680354
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 155310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -24,8 +24,8 @@ GameObject:
   - component: {fileID: 114273297260035562}
   - component: {fileID: 114696626803400684}
   - component: {fileID: 114076992669070398}
-  - component: {fileID: 114069322894218470}
   - component: {fileID: 114542126912657646}
+  - component: {fileID: 114076758532888868}
   m_Layer: 0
   m_Name: DuelManager
   m_TagString: DuelManager
@@ -46,7 +46,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114069322894218470
+--- !u!114 &114076758532888868
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -54,16 +54,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1976004817149818}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e151be2efe2ee7d4496a4fe6134bda17, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b1121ab2d02df542a70e4453f32849c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapPrefab: {fileID: 1883202898589950, guid: b5bb20511dc7cdc4c8ea936ab74dbb87, type: 2}
-  mapPrefabGroup: {fileID: 0}
-  startingPositionsGroup: []
-  playerPrefab: {fileID: 1761871272643408, guid: 76de35864ba140041836034437a4f2bd,
-    type: 2}
-  raceEndPos: 3.9
-  nbrOfTouchToWin: 20
 --- !u!114 &114076992669070398
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -128,9 +121,8 @@ MonoBehaviour:
     type: 2}
   floorHeight: -2.9
   startingXPosition: 0
-  raceEndPosMin: 75
-  raceEndPosMax: 85
-  speedPerAmount: 0.04
+  raceEndPos: 5
+  speedPerAmount: 0.07
   airResistance: 0.01
   otherResistance: 0.35
   cameraOffsetX: 0
@@ -150,8 +142,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1686361327155038, guid: ebf78ff615d82fd42a291800fa139d37,
     type: 2}
   startingXPosition: 0
-  raceEndPosMin: 30
-  raceEndPosMax: 35
+  raceEndPos: 5
   cameraOffsetX: 1.5
   timeInterval: 1
   timeWorstYouCanDo: 0.8
