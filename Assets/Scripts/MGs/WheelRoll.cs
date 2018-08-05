@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class WheelRoll : NormalMiniGame {
-
+    #region var
     public GameObject mapPrefab;
     public GameObject playerPrefab;
     int indexPlayerOb;
@@ -31,7 +31,7 @@ public class WheelRoll : NormalMiniGame {
     Animator[] wheels = new Animator[2];
     float[] wheelCirc = new float[2]; //12 frame pour 1 tour
 
-
+    #endregion
     public override void ClearMiniGame()
     {
         if (miniGame != null)
@@ -117,16 +117,13 @@ public class WheelRoll : NormalMiniGame {
         Camera camSec = Camera.main;
         Transform playerTransform = DuelManager.instance.player.playerForMG[indexPlayerOb].transform;
         playerTransform.position = new Vector3(startingXPosition, floorHeight, 0);
-        bool tap;
         while (playerTransform.position.x < raceEndPos)
         {
-            tap = false;
             #region Mobile Inputs
             if (Input.touchCount > 0)
             {
                 if (Input.touches[0].phase == TouchPhase.Began)
                 {
-                    tap = true;
                     isDragging = true;
                     startTouch = GetCurrentWorldPos(true, camSec);
                 }
@@ -141,7 +138,6 @@ public class WheelRoll : NormalMiniGame {
             #region Standalone Inputs
             if (Input.GetMouseButtonDown(0))
             {
-                tap = true;
                 isDragging = true;
                 startTouch = GetCurrentWorldPos(false, camSec);
             }

@@ -27,12 +27,7 @@ public class ServerDuel : NetworkBehaviour
     void Start()
     {
         instance = this;
-        //StartCoroutine(WaitingForSetup());
     }
-    //private void Update()
-    //{
-    //    Debug.Log(DuelManager.instance.livingPlayers.Count);
-    //}
     public IEnumerator CompassSetup()                       //g
     {
         consistent = 0;
@@ -142,7 +137,7 @@ public class ServerDuel : NetworkBehaviour
             }
             yield return null;
         }
-        GamePhase();
+        DuelManager.instance.RpcStartMG();
     }
     IEnumerator ServerTimeUpdate()
     {
@@ -162,18 +157,6 @@ public class ServerDuel : NetworkBehaviour
         showMG = true;
 
     }
-    void GamePhase() //need to press buttons   
-    {
-     //   Debug.Log("Phase3");
-        DuelManager.instance.RpcStartMG();
-        DuelManager.instance.RpcStopUpdate();        
-        //while (!CheckWin())
-        //{
-        //    yield return null;
-        //}
-        //DuelManager.instance.RpcDisplayEnd();
-        //StartCoroutine(RestartPhase());
-    }
     public void SomeoneHasWonDuel()
     {
         DuelManager.instance.RpcDisplayEnd();
@@ -182,8 +165,8 @@ public class ServerDuel : NetworkBehaviour
     //{
     //    DuelManager.instance.RpcDisplayEndGroup(winner);
     //}
- 
-   
+
+    #region checkSetup + checkRestart
     //bool CheckSetup()
     //{
     //    foreach (Player p in DuelManager.instance.players)
@@ -208,6 +191,7 @@ public class ServerDuel : NetworkBehaviour
     //    //RpcDisplay de number 
     //    return (wtr == 2);
     //}
+    #endregion
     bool allDeviceUD()
     {
         foreach (Player p in DuelManager.instance.players)

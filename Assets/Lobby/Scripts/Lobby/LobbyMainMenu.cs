@@ -19,9 +19,7 @@ namespace Prototype.NetworkLobby
         {
             lobbyManager.topPanel.ToggleVisibility(true);
 
-            ipInput.onEndEdit.RemoveAllListeners();
-            ipInput.onEndEdit.AddListener(onEndEditIP);
-
+           
             matchNameInput.onEndEdit.RemoveAllListeners();
             matchNameInput.onEndEdit.AddListener(onEndEditGameName);
         }
@@ -30,12 +28,13 @@ namespace Prototype.NetworkLobby
         {
             lobbyManager.StartHost();
         }
-
-        public void OnClickJoin()
+        public void OnClickJoin(LanConnectionInfo match)
         {
+            NDiscovery.instance.StopDiscovery();
+
             lobbyManager.ChangeTo(lobbyPanel);
 
-            lobbyManager.networkAddress = ipInput.text;
+            lobbyManager.networkAddress = match.ipAddress;
             lobbyManager.StartClient();
 
             lobbyManager.backDelegate = lobbyManager.StopClientClbk;
@@ -78,13 +77,6 @@ namespace Prototype.NetworkLobby
             lobbyManager.ChangeTo(lobbyServerList);
         }
 
-        void onEndEditIP(string text)
-        {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                OnClickJoin();
-            }
-        }
 
         void onEndEditGameName(string text)
         {

@@ -19,8 +19,7 @@ public class DuelManager : NetworkBehaviour {
     //  public Color playerColor;
     // public Color otherPlayerColor;
 
-    Coroutine udUpdate;
-    Coroutine compassUpdate;
+   // Coroutine udUpdate;
 
     bool doingServerSetup;
     public bool groupPlay = false;
@@ -76,7 +75,7 @@ public class DuelManager : NetworkBehaviour {
     }
     public void SetupGameStart()
     {
-        udUpdate = StartCoroutine(SendUDUpdate());
+        StartCoroutine(SendUDUpdate());
         if (isServer)                               //gameStart
         {
             ServerDuel.instance.FStart();
@@ -260,14 +259,7 @@ public class DuelManager : NetworkBehaviour {
     //}
     public void StopUpdates()
     {
-        if (udUpdate != null)
-        {
-            StopCoroutine(udUpdate);
-        }
-        if (compassUpdate != null)
-        {
-            StopCoroutine(compassUpdate);
-        }
+        StopAllCoroutines();
     }
     
 	//void ModeSetup()
@@ -331,7 +323,7 @@ public class DuelManager : NetworkBehaviour {
         {
             yield return new WaitForSeconds(timeWaitForServer);
         }
-        Handheld.Vibrate();
+        Vibrate();
         StartNextMG();
     }
     public void MiniGameFinished()
@@ -356,7 +348,8 @@ public class DuelManager : NetworkBehaviour {
         {
             yield return null;
         }
-                                    //LE CODE POUR QUE CA RELOAD PAS LES CHOSES QUI SONT DEJA LOAD MAIS AUSSI CHECKER LES UNLOAD DES MINIGAME POUR ENLEVER LES COMMENTAIRES
+        #region best way
+        //LE CODE POUR QUE CA RELOAD PAS LES CHOSES QUI SONT DEJA LOAD MAIS AUSSI CHECKER LES UNLOAD DES MINIGAME POUR ENLEVER LES COMMENTAIRES
         //List<int> mgToLoad = new List<int>();
         //List<int> mgToUnload = new List<int>();
         //List<int> mgToSort = new List<int>();
@@ -404,7 +397,7 @@ public class DuelManager : NetworkBehaviour {
         //    instance.miniGames[i].LoadObjects();
         //}
 
-        
+        #endregion
         for (int i = 0; i < instance.miniGameIndex.Length; i++)
         {
             miniGames[instance.miniGameIndex[i]].LoadObjects();
@@ -432,7 +425,10 @@ public class DuelManager : NetworkBehaviour {
         return DuelManager.instance.miniGames[DuelManager.instance.miniGameIndex[index]];
     }
 
-
+    public static void Vibrate()
+    {
+       // Handheld.Vibrate();
+    }
 
 
 
@@ -453,14 +449,11 @@ public class DuelManager : NetworkBehaviour {
     {
         Setup();
     }
-    [ClientRpc]
-    public void RpcStopUpdate()
-    {
-        StopUpdates();
-    }
+
     [ClientRpc]
     public void RpcStartMG()
     {
+        StopUpdates();
         StartCoroutine(StartPlayingMiniGames());
     }
     [ClientRpc]
@@ -503,8 +496,8 @@ public class DuelManager : NetworkBehaviour {
             Debug.Log(victim + " has been eliminated by " + shooter);
             //Debug.Log(instance.livingPlayers[victim].name + " has been eliminated by " + instance.livingPlayers[shooter].name);
         }
-        DuelManager.instance.livingPlayers.Remove(DuelManager.instance.players[victim]);
-        if (DuelManager.instance.livingPlayers.Count == 1)
+        instance.livingPlayers.Remove(instance.players[victim]);
+        if (instance.livingPlayers.Count == 1)
         {
            // instance.livingPlayers[0].hasWon = true;
             instance.player.DisplayEndResultGroup(instance.player == instance.livingPlayers[0], instance.livingPlayers[0].name);

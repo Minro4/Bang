@@ -53,7 +53,7 @@ public class Shoot : MiniGame {
         {
             yield return null;
         }
-        Handheld.Vibrate();
+        DuelManager.Vibrate();
 
         DuelManager.instance.player.ShootSomeone();
     }
@@ -71,7 +71,7 @@ public class Shoot : MiniGame {
             yield return null;
         }
         finishedShooting = true;
-        Handheld.Vibrate();
+DuelManager.Vibrate();
     }
     public void StartCompassReading()
     {
@@ -81,13 +81,8 @@ public class Shoot : MiniGame {
     {
         float averagedCompass = -1;
         Vector3 lfAcceleration = Vector3.zero;
-        const float maxAngleSpeed = 500;
-
-        //int averagedTime = 0;
-        //const int averagedTimeMin = 10;
-        //float compassValue;
-        //float time = 0;
-        //const float timeMin = 0.25f;
+        const float maxAngleSpeed = 400;
+        float time = 0;  
 
         do
         {
@@ -98,23 +93,32 @@ public class Shoot : MiniGame {
             }
             else
             {
+                time += Time.deltaTime;
                 if (acceleration != lfAcceleration)
                 {
-                    float angleSpeed = Vector3.Angle(acceleration, lfAcceleration) / Time.deltaTime;
+                    float angleSpeed = Vector3.Angle(acceleration, lfAcceleration) / time;
+                    time = 0;
                     Debug.Log(angleSpeed);
                     angleSpeed = Mathf.Clamp01(angleSpeed / maxAngleSpeed);
                     float weight = 1 - angleSpeed;
+                    weight *= weight;
 
                     averagedCompass = AverageOut(averagedCompass, Input.compass.magneticHeading, weight);
                     // averagedCompass = (averagedCompass*2 + Input.compass.magneticHeading) / 3;
                 }
+               
             }
 
             lfAcceleration = acceleration;
             yield return null;
         } while (!finishedShooting);
-            FindTheTarget(DuelManager.instance.player, averagedCompass);
-
+        FindDirection(DuelManager.instance.player, averagedCompass);
+        #region oldCode
+        //int averagedTime = 0;
+        //const int averagedTimeMin = 10;
+        //float compassValue;
+        //float time = 0;
+        //const float timeMin = 0.25f;
         //while (!finishedShooting)           vien qui marche pas super bien quand tu bouge
         //{
         //    time += Time.deltaTime;
@@ -126,12 +130,12 @@ public class Shoot : MiniGame {
         //    yield return null;
         //}
         //FindTheTarget(DuelManager.instance.player, averagedCompass);
+        #endregion
     }
-    public void FindTheTarget(Player shooter, float compass)            //g
+    public void FindDirection(Player shooter, float compass)            //g
     {
         string temp;
-        int idTarget;
-        int numberOfPlayers = DuelManager.instance.livingPlayers.Count;
+        bool shootLeft;
         //if (numberOfPlayers <= 1)
         //{
         //    Debug.Log("WTF");
@@ -141,14 +145,12 @@ public class Shoot : MiniGame {
         //}
         if ((compass - shooter.compassValueCenter + 360) % 360 > 180)      //Changer le millieu parce que le milleu va pas toujours etre ca quand le moitier du monde est omrt pi que ya gros du monde qui joue
         {
-            int index = mod((shooter.GetLPIndex() - 1),numberOfPlayers);
-            idTarget = DuelManager.instance.livingPlayers[index].id;
+            shootLeft = true;
             temp = "Left";
         }
         else
         {
-            int index = (shooter.GetLPIndex() + 1) % (numberOfPlayers);
-            idTarget = DuelManager.instance.livingPlayers[index].id;           
+            shootLeft = false;          
             temp = "Right";
         }
         DuelManager.instance.endText.text = "Compass: " + compass + " Center: " + DuelManager.instance.player.compassValueCenter + " Shot: " + temp;       
@@ -156,12 +158,24 @@ public class Shoot : MiniGame {
         {
             DuelManager.instance.MiniGameShootFinished();
         }
-        DuelManager.instance.player.CmdGroupShoot(idTarget, shooter.id);
+        DuelManager.instance.player.CmdGroupShoot(shootLeft, shooter.id);
     }
 
     float AverageOut(float average,float newValue,float weight)
     {
-        return ((average + newValue*weight) / (weight + 1));
+        float diff = average - newValue;
+        if (Mathf.Abs(diff) > 180)
+        {
+            if (diff > 0)
+            {
+                newValue += 360;
+            }
+            else
+            {
+                newValue -= 360;
+            }
+        }
+        return ((((average + newValue*weight) / (weight + 1))+360)%360);
     }
     public override void SetPlayerOb(int index)
     {

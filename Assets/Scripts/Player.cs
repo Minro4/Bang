@@ -114,7 +114,7 @@ public class Player : NetworkBehaviour {
         }
         else
         {
-            Handheld.Vibrate();
+DuelManager.Vibrate();
             DuelManager.instance.endText.text = "Game Over";
         }
     }
@@ -135,7 +135,7 @@ public class Player : NetworkBehaviour {
         }
         else
         {
-            Handheld.Vibrate();
+DuelManager.Vibrate();
             DuelManager.instance.endText.text = winner + " won!";
         }
     }
@@ -150,6 +150,10 @@ public class Player : NetworkBehaviour {
             }
         }
         return 0;
+    }
+    int mod(int x, int m)
+    {
+        return (x % m + m) % m;
     }
 
     [Command]
@@ -198,10 +202,22 @@ public class Player : NetworkBehaviour {
         compassValueCenter = c;
     }
     [Command]
-    public void CmdGroupShoot(int indexTarget, int indexShooter)
+    public void CmdGroupShoot(bool shootLeft, int idShooter)
     {
-        DuelManager.instance.RpcHasDied(indexTarget, indexShooter);
-        //ServerDuel.instance.FindTheTarget(this, c);
+        int idTarget;
+        int numberOfPlayers = DuelManager.instance.livingPlayers.Count;
+
+        if (shootLeft) 
+        {
+            int index = mod((GetLPIndex() - 1),numberOfPlayers);
+            idTarget = DuelManager.instance.livingPlayers[index].id;
+        }
+        else
+        {
+            int index = (GetLPIndex() + 1) % (numberOfPlayers);
+            idTarget = DuelManager.instance.livingPlayers[index].id;           
+        }
+        DuelManager.instance.RpcHasDied(idTarget, idShooter);
     }
     [Command]
     public void CmdUpdateTapRaceNbr(int n)

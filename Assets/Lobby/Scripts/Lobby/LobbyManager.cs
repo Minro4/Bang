@@ -15,6 +15,7 @@ namespace Prototype.NetworkLobby
 
         static public LobbyManager s_Singleton;
 
+       // public NDiscovery discovery;
 
         [Header("Unity UI Lobby")]
         [Tooltip("Time in second between all players ready & match start")]
@@ -53,6 +54,7 @@ namespace Prototype.NetworkLobby
 
         protected LobbyHook _lobbyHooks;
 
+
         void Start()
         {
             s_Singleton = this;
@@ -62,11 +64,10 @@ namespace Prototype.NetworkLobby
             backButton.gameObject.SetActive(false);
             GetComponent<Canvas>().enabled = true;
 
-            DontDestroyOnLoad(gameObject);
+          //  DontDestroyOnLoad(this.gameObject);
 
             SetServerInfo("Offline", "None");
         }
-
         public override void OnLobbyClientSceneChanged(NetworkConnection conn)
         {
             if (SceneManager.GetSceneAt(0).name == lobbyScene)
@@ -191,6 +192,7 @@ namespace Prototype.NetworkLobby
             else
             {
                 StopHost();
+                NDiscovery.instance.RestartAsClient();
             }
 
             
@@ -200,6 +202,7 @@ namespace Prototype.NetworkLobby
         public void StopClientClbk()
         {
             StopClient();
+            NDiscovery.instance.RestartAsClient();
 
             if (_isMatchmaking)
             {
@@ -235,7 +238,7 @@ namespace Prototype.NetworkLobby
         public override void OnStartHost()
         {
             base.OnStartHost();
-
+            NDiscovery.instance.StartBroadcast();
             ChangeTo(lobbyPanel);
             backDelegate = StopHostClbk;
             SetServerInfo("Hosting", networkAddress);
@@ -415,7 +418,7 @@ namespace Prototype.NetworkLobby
         public override void OnClientError(NetworkConnection conn, int errorCode)
         {
             ChangeTo(mainMenuPanel);
-            infoPanel.Display("Cient error : " + (errorCode == 6 ? "timeout" : errorCode.ToString()), "Close", null);
+            infoPanel.Display("Client error : " + (errorCode == 6 ? "timeout" : errorCode.ToString()), "Close", null);
         }
     }
 }
